@@ -8,10 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
-	let emojis = ["🚌", "🚜", "🛵", "🛴", "🚕", "🏎", "🚑", "🛺", "🚲", "🚒", "🚚", "🚖", "🚍"]
-	@State var emojiCount = 4
+	static let vehicleList = ["🚌", "🚜", "🛵", "🛴", "🚕", "🏎", "🚑", "🛺", "🚲", "🚒", "🚍"]
+	static let flagsList = ["🇦🇷", "🇧🇷", "🇨🇳", "🇬🇷", "🇮🇳", "🇲🇱", "🇲🇰", "🇵🇷", "🇦🇪", "🇪🇭", "🇵🇹", "🇧🇪"]
+	static let sportsList = ["⚽️", "🏀", "🏈", "⚾️", "🥎", "🎾", "🏐", "🥊", "🎱", "🏓"]
+	
+	@State var emojis : [String] = ContentView.vehicleList
+	
+	var emojiCount: Int {
+		emojis.count
+	}
 	var body: some View {
 		VStack {
+			Text("Memorize!").font(.largeTitle)
+			Spacer()
 			ScrollView {
 				LazyVGrid(columns: [GridItem(.adaptive(minimum: 65, maximum: 300))]) {
 					ForEach(emojis[0..<emojiCount], id:\.self) { emoji in
@@ -21,37 +30,54 @@ struct ContentView: View {
 			}
 			Spacer()
 			HStack {
-				add
+				vehicles
 				Spacer()
-				remove
+				flags
+				Spacer()
+				emoticons
 			}
 			.font(.largeTitle)
 			.padding(.horizontal)
+			Spacer()
 		}
 		.padding(.horizontal)
 		.foregroundColor(.red)
 	}
 	
-	var add : some View {
-		Button(action : {
-			if (emojiCount < emojis.count) {
-				emojiCount += 1
-			}
-		}, label : {
-			Image(systemName:"plus.circle")
+	var flags : some View {
+		VStack {
+			Button(action : {
+				emojis = ContentView.flagsList
+				emojis.shuffle()
+			}, label : {
+				Image(systemName:"flag")
+			})
+			Text("Flags").font(.body)
 		}
-		)
 	}
 	
-	var remove : some View {
-		Button(action : {
-			if (emojiCount > 1) {
-				emojiCount -= 1
-			}
-		}, label : {
-			Image(systemName:"minus.circle")
+	var vehicles : some View {
+		VStack {
+			Button(action : {
+				emojis = ContentView.vehicleList
+				emojis.shuffle()
+			}, label : {
+				Image(systemName:"car")
+			})
+			Text("Vehicles").font(.body)
 		}
-		)
+	}
+	
+	var emoticons : some View {
+		VStack {
+			Button(action : {
+				emojis = ContentView.sportsList
+				emojis.shuffle()
+			}, label : {
+				Image(systemName:"sportscourt")
+			})
+			Text("Sports").font(.body)
+		}
 	}
 }
 
