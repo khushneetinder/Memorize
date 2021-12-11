@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+	static let minCardsCount = 4
 	static let vehicleList = ["🚌", "🚜", "🛵", "🛴", "🚕", "🏎", "🚑", "🛺", "🚲", "🚒", "🚍"]
 	static let flagsList = ["🇦🇷", "🇧🇷", "🇨🇳", "🇬🇷", "🇮🇳", "🇲🇱", "🇲🇰", "🇵🇷", "🇦🇪", "🇪🇭", "🇵🇹", "🇧🇪"]
 	static let sportsList = ["⚽️", "🏀", "🏈", "⚾️", "🥎", "🎾", "🏐", "🥊", "🎱", "🏓"]
@@ -15,14 +16,15 @@ struct ContentView: View {
 	@State var emojis : [String] = ContentView.vehicleList
 	
 	var emojiCount: Int {
-		emojis.count
+		return Int.random(in: ContentView.minCardsCount...emojis.count)
 	}
+	
 	var body: some View {
 		VStack {
 			Text("Memorize!").font(.largeTitle)
 			Spacer()
 			ScrollView {
-				LazyVGrid(columns: [GridItem(.adaptive(minimum: 65, maximum: 300))]) {
+				LazyVGrid(columns: [GridItem(.adaptive(minimum: self.widthThatBestFits(cardCount: emojiCount), maximum: 300))]) {
 					ForEach(emojis[0..<emojiCount], id:\.self) { emoji in
 						CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
 					}
@@ -48,6 +50,7 @@ struct ContentView: View {
 		VStack {
 			Button(action : {
 				emojis = ContentView.flagsList
+				
 				emojis.shuffle()
 			}, label : {
 				Image(systemName:"flag")
@@ -78,6 +81,11 @@ struct ContentView: View {
 			})
 			Text("Sports").font(.body)
 		}
+	}
+	
+	// TODO: Pending extra credit
+	func widthThatBestFits(cardCount: Int) -> CGFloat {
+		return 65
 	}
 }
 
