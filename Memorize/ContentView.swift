@@ -8,114 +8,56 @@
 import SwiftUI
 
 struct ContentView: View {
-	static let minCardsCount = 4
-	static let vehicleList = ["🚌", "🚜", "🛵", "🛴", "🚕", "🏎", "🚑", "🛺", "🚲", "🚒", "🚍"]
-	static let flagsList = ["🇦🇷", "🇧🇷", "🇨🇳", "🇬🇷", "🇮🇳", "🇲🇱", "🇲🇰", "🇵🇷", "🇦🇪", "🇪🇭", "🇵🇹", "🇧🇪"]
-	static let sportsList = ["⚽️", "🏀", "🏈", "⚾️", "🥎", "🎾", "🏐", "🥊", "🎱", "🏓"]
-	
-	@State var emojis : [String] = ContentView.vehicleList
+	@ObservedObject var viewModel : EmojiMemoryGame
 	
 	var emojiCount: Int {
-		return Int.random(in: ContentView.minCardsCount...emojis.count)
+		return viewModel.cards.count
 	}
 	
 	var body: some View {
-		VStack {
-			Text("Memorize!").font(.largeTitle)
-			Spacer()
-			ScrollView {
-				LazyVGrid(columns: [GridItem(.adaptive(minimum: self.widthThatBestFits(cardCount: emojiCount), maximum: 300))]) {
-					ForEach(emojis[0..<emojiCount], id:\.self) { emoji in
-						CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
-					}
+		ScrollView {
+			LazyVGrid(columns: [GridItem(.adaptive(minimum: 65, maximum: 300))]) {
+				ForEach(viewModel.cards) { item in
+					CardView(card: item)
+						.aspectRatio(2/3, contentMode: .fit)
+						.onTapGesture {
+							viewModel.choose(card: item)
+						}
 				}
 			}
-			Spacer()
-			HStack {
-				vehicles
-				Spacer()
-				flags
-				Spacer()
-				emoticons
-			}
-			.font(.largeTitle)
-			.padding(.horizontal)
-			Spacer()
 		}
 		.padding(.horizontal)
 		.foregroundColor(.red)
 	}
-	
-	var flags : some View {
-		VStack {
-			Button(action : {
-				emojis = ContentView.flagsList
-				
-				emojis.shuffle()
-			}, label : {
-				Image(systemName:"flag")
-			})
-			Text("Flags").font(.body)
-		}
-	}
-	
-	var vehicles : some View {
-		VStack {
-			Button(action : {
-				emojis = ContentView.vehicleList
-				emojis.shuffle()
-			}, label : {
-				Image(systemName:"car")
-			})
-			Text("Vehicles").font(.body)
-		}
-	}
-	
-	var emoticons : some View {
-		VStack {
-			Button(action : {
-				emojis = ContentView.sportsList
-				emojis.shuffle()
-			}, label : {
-				Image(systemName:"sportscourt")
-			})
-			Text("Sports").font(.body)
-		}
-	}
-	
-	// TODO: Pending extra credit
-	func widthThatBestFits(cardCount: Int) -> CGFloat {
-		return 65
-	}
 }
 
 struct CardView : View {
-	var content : String
-	@State var isFaceUp : Bool = true
+	let card : MemoryGame<String>.Card
 	
 	var body: some View {
 		ZStack {
 			let shape = RoundedRectangle(cornerRadius: 20)
-			if isFaceUp {
+			if card.isFaceUp {
 				shape.fill().foregroundColor(.white)
 				shape.strokeBorder(lineWidth: 3)
-				Text(content).font(.largeTitle)
+				Text(card.content).font(.largeTitle)
+			}
+			else if card.isMatched {
+				shape.opacity(0)
 			}
 			else {
 				shape.fill()
 			}
-		}
-		.onTapGesture {
-			isFaceUp = !isFaceUp
 		}
 	}
 }
 
 struct ContentView_Previews: PreviewProvider {
 	static var previews: some View {
-		ContentView()
+		let game = EmojiMemoryGame()
+		ContentView(viewModel: game)
 			.preferredColorScheme(.light)
-		ContentView()
+		ContentView(viewModel: game)
 			.preferredColorScheme(.dark)
 	}
 }
